@@ -24,13 +24,17 @@ def listen():
   server.listen(5)
   print "[*] Listening on %s:%d" % (listen_addr, listen_port)
 
-  while True:
-    client_socket, addr = server.accept()
+  try:
+    while True:
+      client_socket, addr = server.accept()
 
-    # Spin off a new thread to handle client
-    client_thread = threading.Thread(target=client_handler, 
-      args=(client_socket, addr))
-    client_thread.start()
+      # Spin off a new thread to handle client
+      client_thread = threading.Thread(target=client_handler, 
+        args=(client_socket, addr))
+      client_thread.start()
+  except KeyboardInterrupt:
+    server.close()
+    quit()
 
 def run_command(command):
   # Trim the newline
@@ -47,10 +51,6 @@ def run_command(command):
   return output
 
 def client_handler(client_socket, addr):
-  global upload
-  global execute
-  global command
-
   while True:
     # Show a prompt
     client_socket.send("<#> ")
@@ -66,10 +66,7 @@ def client_handler(client_socket, addr):
     client_socket.send(response)
 
 def main():
-  try:
-    # Listen for commands.
-    listen()
-  except KeyboardInterrupt:
-    quit()
+  # Listen for commands.
+  listen()
 
 main()
